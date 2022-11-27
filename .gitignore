@@ -36,3 +36,4 @@ packages/
 *.dll
 *.dll
 bin
+.idea
