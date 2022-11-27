@@ -15,5 +15,7 @@ namespace WebApp.Data
         }
 
         public DbSet<WebApp.Models.Product> Products { get; set; } = default!;
+
+        public DbSet<WebApp.Models.Shop>? Shop { get; set; }
     }
 }
