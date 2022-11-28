@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Models;
 
@@ -14,8 +10,8 @@ namespace WebApp.Data
         {
         }
 
-        public DbSet<WebApp.Models.Product> Products { get; set; } = default!;
+        public DbSet<Product> Products { get; set; } = default!;
 
-        public DbSet<WebApp.Models.Shop>? Shop { get; set; }
+        public DbSet<Shop> Shop { get; set; } = default!;
     }
 }
