@@ -30,7 +30,7 @@ try
             .ReadFrom.Configuration(context.Configuration)
             .ReadFrom.Services(services));
     
-    var connectionString = builder.Configuration.GetConnectionString("WebDbContext");
+    var connectionString = builder.Configuration.GetConnectionString("WebAppContext");
     
     builder.Services.AddDbContext<WebDbContext>(options =>
         options.UseSqlServer(connectionString));
