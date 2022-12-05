@@ -1,0 +1,33 @@
+@model WebApp.Models.Product
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h1>Добавление в корзину</h1>
+
+<h3>Вы уверены, что хотите добавить в корзину данный товар?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Price)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Price)
+        </dd>
+    </dl>
+    
+    <form asp-action="Add">
+        <input type="hidden" asp-for="Id"/>
+        <input type="submit" value="Добавить" class="btn btn-danger"/> |
+        <a asp-controller="Product" asp-action="Index">Назад</a>
+    </form>
+</div>
