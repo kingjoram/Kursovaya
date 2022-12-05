@@ -37,3 +37,4 @@ packages/
 *.dll
 bin
 .idea
+/logs/
