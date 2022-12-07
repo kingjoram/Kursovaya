@@ -25,6 +25,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Price)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Balance)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -38,10 +41,14 @@
                 @Html.DisplayFor(modelItem => item.Price)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.Balance)
+            </td>
+            <td>
                 @if(User.IsInRole("Admin")) {
                     <a asp-action="Edit" asp-route-id="@item.Id">Изменить</a> <text>|</text>
                     <a asp-action="Details" asp-route-id="@item.Id">Просмотр</a> <text>|</text>
-                    <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a> <text>|</text>
+                    <a asp-action="Incoming" asp-route-id="@item.Id">Новое поступление</a>
                 }
                 else {
                     <a asp-controller="Basket" asp-action="Add" asp-route-id="@item.Id">Добавить в корзину</a>

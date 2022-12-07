@@ -24,9 +24,34 @@ public class ProductController : Controller
     // GET: Product
     public async Task<IActionResult> Index()
     {
-        return _context.Products != null ? 
-            View(await _context.Products.ToListAsync()) :
-            Problem("Entity set 'WebAppContext.Products'  is null.");
+        var incomings = _context.Incoming.Select(x => new{x.ProdId, x.Amount}).ToList();
+        /*var groupIncoming = incomings.GroupBy(x => x.ProdId).Select(grouping => new
+        {
+            grouping.Key, Sum = grouping.Sum(x => x.Amount)
+        }).ToList();*/
+
+        var basketItems = _context.BasketItem.Select(x => new{x.ProdId, Amount = -x.Amount}).ToList();
+        // basketItems.GroupBy(x => x.ProdId).Select(grouping => new
+        // {
+        //     grouping.Key, Sum = -grouping.Sum(x => x.Amount)
+        // }).ToList();
+
+        var concat = basketItems.Concat(incomings);
+        
+        var result = concat.GroupBy(x => x.ProdId).Select(grouping => new
+        { 
+            grouping.Key, Sum = grouping.Sum(x => x.Amount)
+        }).ToDictionary(x => x.Key, x => x.Sum);
+
+        var listAsync = await _context.Products.ToListAsync();
+        foreach (var product in listAsync)
+        {
+            if (result.TryGetValue(product.Id, out var sum))
+            {
+                product.Balance = sum;
+            }
+        }
+        return View(listAsync);
     }
 
     // GET: Product/Details/5
@@ -161,5 +186,10 @@ public class ProductController : Controller
     private bool ProductsExists(Guid id)
     {
         return (_context.Products?.Any(e => e.Id == id)).GetValueOrDefault();
+    }
+
+    public IActionResult Incoming()
+    {
+        throw new NotImplementedException();
     }
 }

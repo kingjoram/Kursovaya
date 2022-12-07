@@ -1,0 +1,33 @@
+@model Shop
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h1>Выбор магазина</h1>
+
+<h3>Вы уверены, что хотите выбрать этот магазин?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Adress)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Adress)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.PhoneNumber)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.PhoneNumber)
+        </dd>
+    </dl>
+    
+    <form asp-action="Order">
+        <input type="hidden" asp-for="Id"/>
+        <input type="submit" value="Выбрать" class="btn btn-success"/> |
+        <a asp-controller="Shop" asp-action="Index">Назад</a>
+    </form>
+</div>

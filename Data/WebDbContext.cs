@@ -19,4 +19,6 @@ public class WebDbContext : IdentityDbContext<AppUser, AppRole, Guid,
     public DbSet<Shop> Shop { get; set; } = default!;
 
     public DbSet<AppUser> Users { get; set; } = default!;
+    public DbSet<Incoming> Incoming { get; set; } = default!;
+    
 }

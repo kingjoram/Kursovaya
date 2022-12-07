@@ -1,0 +1,18 @@
+@model BasketItem
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Удаление</h2>
+<h3>Вы уверены, что хотите очистить корзину?</h3>
+<div>
+    <hr />
+
+    <form asp-action="DeleteAll">
+        @*<input type="hidden" asp-for="Id"/>*@
+        <input type="submit" value="Удалить" class="btn btn-danger"/> |
+        <a asp-action="Index">Назад</a>
+    </form>
+</div>

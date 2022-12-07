@@ -1,11 +1,13 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
 using WebApp.Models;
 
 namespace WebApp.Controllers;
-
+ 
+[Authorize]
 public class BasketController : Controller
 {
     private readonly WebDbContext _context;
@@ -26,7 +28,7 @@ public class BasketController : Controller
             if (Guid.TryParse(userId, out var useridGuid))
             {
                 basket = _context.Basket.Include(x => x.Items).ThenInclude(x => x.Prod)
-                    .SingleOrDefault(x => x.UserId == useridGuid);
+                    .SingleOrDefault(x => x.UserId == useridGuid && x.Date == null);
                 if (basket == null)
                 {
                     basket = new Basket();
@@ -66,8 +68,8 @@ public class BasketController : Controller
             return Problem("Entity set 'WebAppContext.Products'  is null.");
         }
 
-        var products = await _context.Products.FindAsync(id);
-        if (products != null)
+        var product = await _context.Products.FindAsync(id);
+        if (product != null)
         {
             var findFirst = User.FindFirst(ClaimTypes.NameIdentifier);
             var userId = findFirst?.Value;
@@ -76,11 +78,11 @@ public class BasketController : Controller
             {
                 if (Guid.TryParse(userId, out var useridGuid))
                 {
-                    var basket = _context.Basket.Include(x => x.Items).SingleOrDefault(x => x.UserId == useridGuid);
+                    var basket = _context.Basket.Include(x => x.Items).SingleOrDefault(x => x.UserId == useridGuid && x.Date == null);
                     if (basket == null)
                     {
                         var newBasket = new Basket() { UserId = useridGuid };
-                        var basketItem = new BasketItem() { ProdId = id, Amount = 1, Price = 12 };
+                        var basketItem = new BasketItem() { ProdId = id, Amount = 1, Price = product.Price };
                         newBasket.Items.Add(basketItem);
                         _context.Basket.Add(newBasket);
                     }
@@ -93,21 +95,20 @@ public class BasketController : Controller
                         }
                         else
                         {
-                            var basketItem = new BasketItem() { ProdId = id, Amount = 1, Price = 16 };
+                            var basketItem = new BasketItem() { ProdId = id, Amount = 1, Price = product.Price };
                             basket.Items.Add(basketItem);
                         }
                     }
+                    
                 }
             }
-            //_context.Products.Remove(products);
         }
-
-        TempData["Msg"] = "Удачно добавлено";
+        TempData["Msg"] = $"{product.Name}: добавлено в корзину";
         await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index), nameof(Product));
     }
 
-    // GET: Product/Delete/5
+    // GET: Basket/Delete/5
     public async Task<IActionResult> Delete(Guid? id)
     {
         if (id == null)
@@ -115,7 +116,7 @@ public class BasketController : Controller
             return NotFound();
         }
 
-        var basketItem = await _context.BasketItem
+        var basketItem = await _context.BasketItem.Include(x =>x.Prod)
             .FirstOrDefaultAsync(m => m.Id == id);
         if (basketItem == null)
         {
@@ -142,7 +143,100 @@ public class BasketController : Controller
         await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
     }
+
+    public async Task<IActionResult> DeleteAll()
+    {
+        return View();
+    }
+    
+    // POST: Basket/DeleteAll/5
+    [HttpPost, ActionName("DeleteAll")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteAllConfirmed()
+    {
+        var findFirst = User.FindFirst(ClaimTypes.NameIdentifier);
+        var userId = findFirst?.Value;
+        
+        if (userId != null)
+        {
+            if (Guid.TryParse(userId, out var useridGuid))
+            {
+                var basket = _context.Basket.Include(x => x.Items).ThenInclude(x => x.Prod)
+                    .SingleOrDefault(x => x.UserId == useridGuid && x.Date == null);
+                if (basket != null)
+                {
+                    basket.Items.Clear();
+                    await _context.SaveChangesAsync();
+                }
+            }
+        }
+        return RedirectToAction(nameof(Index));
+    }
+
+    // GET: Basket/SelectShop
+    public async Task<IActionResult> SelectShop(Guid? id)
+    {
+        if (id == null)
+        {
+            return RedirectToAction(nameof(Index), nameof(Shop));
+        }
+
+        var shop = await _context.Shop
+            .FirstOrDefaultAsync(m => m.Id == id);
+        if (shop == null)
+        {
+            return RedirectToAction(nameof(Index), nameof(Shop));
+        }
+
+        return View(shop);
+    }
+
+    // POST: Basket/Select
+    [HttpPost, ActionName("Order")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Order(Guid id)
+    {
+        var shop = await _context.Shop.FindAsync(id);
+        if (shop != null)
+        {
+            var findFirst = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = findFirst?.Value;
+
+            if (userId != null)
+            {
+                if (Guid.TryParse(userId, out var useridGuid))
+                {
+                    var basket = _context.Basket.Include(x => x.Items).SingleOrDefault(x => x.UserId == useridGuid && x.Date == null);
+                    if (basket == null)
+                    {
+                        return RedirectToAction(nameof(Index), "Home");
+                    }
+                    else
+                    {
+                        basket.ShopId = id;
+                        basket.Date = DateTime.Now;
+                        await _context.SaveChangesAsync();
+                        TempData["Msg"] = "Спасибо за покупку!";
+                        return RedirectToAction(nameof(Index), "Home");
+                    }
+                }
+                else
+                {
+                    return RedirectToAction(nameof(Index), "Home");
+                }
+            }
+            else
+            {
+                return RedirectToAction(nameof(Index), "Home");
+            }
+        }
+        else
+        {
+            return RedirectToAction(nameof(Index), nameof(Shop));
+        }
+    }
 }
+
 
 public class AddProductToShopDto
 {

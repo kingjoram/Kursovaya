@@ -11,7 +11,7 @@ using WebApp.Models;
 
 namespace WebApp.Controllers;
 
-[Authorize(Roles = "Admin")]
+[Authorize]
 public class ShopController : Controller
 {
     private readonly WebDbContext _context;

@@ -11,16 +11,26 @@
     <div class="alert alert-primary" role="alert"> @message </div>
 }
 <p>
-    <a asp-controller="Product" asp-action="Index">Добавить товары в корзину</a>
-    </p>
+    <a asp-controller="Product" asp-action="Index">Добавить товары в корзину</a> |
+    <a asp-controller="Basket" asp-action="DeleteAll">Очистить корзину</a> |
+    <a asp-controller="Shop" asp-action="Index">Оформить заказ</a>
+</p>
+
+
 <table class="table">
     <thead>
     <tr>
         <th>
-            @* @Html.DisplayNameFor(model => model.Name) *@
+             Товары
         </th>
         <th>
-            @* @Html.DisplayNameFor(model => model.Price) *@
+            Цена
+        </th>
+        <th>
+            Количество
+        </th>
+        <th>
+            Итого
         </th>
         <th></th>
     </tr>
@@ -33,6 +43,12 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Price)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Amount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalPrice)
             </td>
             <td>
                 <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a> 

@@ -32,9 +32,14 @@
                 @Html.DisplayFor(modelItem => item.Adress)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Изменить</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Просмотр</a> |
+                @if(User.IsInRole("Admin")) {
+                <a asp-action="Edit" asp-route-id="@item.Id">Изменить</a> <text>|</text>
+                <a asp-action="Details" asp-route-id="@item.Id">Просмотр</a> <text>|</text>
                 <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                }
+                else {
+                    <a asp-controller="Basket" asp-action="SelectShop" asp-route-id="@item.Id">Выбрать</a>
+                }
             </td>
         </tr>
 }

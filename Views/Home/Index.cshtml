@@ -1,5 +1,10 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+    var message = TempData["Msg"]?.ToString() ?? "";
+}
+
+@if (!string.IsNullOrWhiteSpace(message)) {
+    <div class="alert alert-primary" role="alert"> @message </div>
 }
 
 <div class="text-center">
