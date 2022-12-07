@@ -14,6 +14,7 @@ public class BasketItem
     public Guid Id { get; set; }
     public Guid BasketId { get; set; }
     public Basket Basket { get; set; }
+    public Product Prod { get; set; }
     public Guid ProdId { get; set; }
     public int Amount { get; set; }
     public decimal Price { get; set; }

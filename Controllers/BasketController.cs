@@ -25,7 +25,7 @@ public class BasketController: Controller
         {
             if (Guid.TryParse(userId, out var useridGuid))
             {
-                basket = _context.Basket.Include(x => x.Items).SingleOrDefault(x => x.UserId == useridGuid);
+                basket = _context.Basket.Include(x => x.Items).ThenInclude(x=>x.Prod).SingleOrDefault(x => x.UserId == useridGuid);
                 if (basket == null)
                 {
                     basket = new Basket();
@@ -55,7 +55,7 @@ public class BasketController: Controller
         return View(product);
     }
 
-    // POST: Product/Delete/5
+    // POST: Basket/Add
     [HttpPost, ActionName("Add")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddConfirmed(Guid id)
@@ -77,21 +77,21 @@ public class BasketController: Controller
                     var basket = _context.Basket.Include(x => x.Items).SingleOrDefault(x => x.UserId == useridGuid);
                     if (basket == null)
                     {
-                        var newBasket = new Basket() { Id = Guid.NewGuid(), UserId = useridGuid };
-                        var basketItem = new BasketItem() { Id = Guid.NewGuid(), ProdId = id, Amount = 1, Price = 12 };
+                        var newBasket = new Basket() { UserId = useridGuid };
+                        var basketItem = new BasketItem() { ProdId = id, Amount = 1, Price = 12 };
                         newBasket.Items.Add(basketItem);
                         _context.Basket.Add(newBasket);
                     }
                     else
                     {
-                        var basketItem = new BasketItem() { Id = Guid.NewGuid(), ProdId = id, Amount = 1, Price = 16 , BasketId = basket.Id};
+                        var basketItem = new BasketItem() { ProdId = id, Amount = 1, Price = 16 };
                         basket.Items.Add(basketItem);
                     }
                 }
             }
             //_context.Products.Remove(products);
         }
-            
+        TempData["Msg"] = "Удачно добавлено";    
         await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index), nameof(Product));
     }
@@ -126,6 +126,7 @@ public class BasketController: Controller
         }
             
         await _context.SaveChangesAsync();
+        TempData["Msg"] = "Удачно удалено";
         return RedirectToAction(nameof(Index));
     }
 }

@@ -3,13 +3,19 @@
 @{
     ViewData["Title"] = "Products";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var message = TempData["name"]?.ToString() ?? "";
+}
+<h1>Товары</h1>
+@if (!string.IsNullOrWhiteSpace(message)) {
+    <div class="alert alert-primary" role="alert"> @message </div>
+}
+@if (User.IsInRole("Admin"))
+{
+    <p>
+        <a asp-action="Create">Добавить новый товар</a>
+    </p>
 }
 
-<h1>Товары</h1>
-
-<p>
-    <a asp-action="Create">Добавить новый товар</a>
-</p>
 <table class="table">
     <thead>
         <tr>
