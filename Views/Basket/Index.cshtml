@@ -3,9 +3,13 @@
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
+    var message = TempData["Msg"]?.ToString() ?? "";
 }
 
 <h2>Корзина</h2>
+@if (!string.IsNullOrWhiteSpace(message)) {
+    <div class="alert alert-primary" role="alert"> @message </div>
+}
 <p>
     <a asp-controller="Product" asp-action="Index">Добавить товары в корзину</a>
     </p>

@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Products";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var message = TempData["name"]?.ToString() ?? "";
+    var message = TempData["Msg"]?.ToString() ?? "";
 }
 <h1>Товары</h1>
 @if (!string.IsNullOrWhiteSpace(message)) {
