@@ -11,7 +11,7 @@ using WebApp.Models;
 
 namespace WebApp.Controllers;
 
-[Authorize]
+//[Authorize]
 public class ProductController : Controller
 {
     private readonly WebDbContext _context;
@@ -25,24 +25,15 @@ public class ProductController : Controller
     public async Task<IActionResult> Index()
     {
         var incomings = _context.Incoming.Select(x => new{x.ProdId, x.Amount}).ToList();
-        /*var groupIncoming = incomings.GroupBy(x => x.ProdId).Select(grouping => new
-        {
-            grouping.Key, Sum = grouping.Sum(x => x.Amount)
-        }).ToList();*/
-
         var basketItems = _context.BasketItem.Select(x => new{x.ProdId, Amount = -x.Amount}).ToList();
-        // basketItems.GroupBy(x => x.ProdId).Select(grouping => new
-        // {
-        //     grouping.Key, Sum = -grouping.Sum(x => x.Amount)
-        // }).ToList();
-
+        
         var concat = basketItems.Concat(incomings);
         
         var result = concat.GroupBy(x => x.ProdId).Select(grouping => new
         { 
             grouping.Key, Sum = grouping.Sum(x => x.Amount)
         }).ToDictionary(x => x.Key, x => x.Sum);
-
+        
         var listAsync = await _context.Products.ToListAsync();
         foreach (var product in listAsync)
         {
@@ -112,8 +103,6 @@ public class ProductController : Controller
     }
 
     // POST: Product/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Price")] Product product)
@@ -188,8 +177,43 @@ public class ProductController : Controller
         return (_context.Products?.Any(e => e.Id == id)).GetValueOrDefault();
     }
 
-    public IActionResult Incoming()
+    // GET: Product/Incoming
+    public async Task<IActionResult> Incoming(Guid? id)
     {
-        throw new NotImplementedException();
+        var incoming = new Incoming();
+        incoming.ProdId = id ?? Guid.Empty;
+        return View(incoming);
+    }
+    
+    // POST: Product/Incoming
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> IncomingConfirmed(Guid? id, Incoming incoming)
+    {
+        incoming.Date = DateTime.Now;
+        _context.Add(incoming);
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
+    }
+    private async Task BalanceCount()
+    {
+        var incomings = _context.Incoming.Select(x => new{x.ProdId, x.Amount}).ToList();
+        var basketItems = _context.BasketItem.Select(x => new{x.ProdId, Amount = -x.Amount}).ToList();
+
+        var concat = basketItems.Concat(incomings);
+        
+        var result = concat.GroupBy(x => x.ProdId).Select(grouping => new
+        { 
+            grouping.Key, Sum = grouping.Sum(x => x.Amount)
+        }).ToDictionary(x => x.Key, x => x.Sum);
+
+        var listAsync = await _context.Products.ToListAsync();
+        foreach (var product in listAsync)
+        {
+            if (result.TryGetValue(product.Id, out var sum))
+            {
+                product.Balance = sum;
+            }
+        }
     }
 }
